@@ -141,13 +141,13 @@ flowchart TD;
 
 ---
 
-## 🚧 Próximos Passos
+## 💡 Próximos Passos e Desafios Futuros
+  
+- [ ] **Gerar Estatísticas:** Utilizar a classe `DoubleSummaryStatistics` para calcular e exibir dados estatísticos sobre os livros cadastrados (ex: média, máximo e mínimo de downloads).
+- [ ] **Top 10 Livros:** Criar uma opção no menu para exibir os 10 livros mais baixados, consultando diretamente o banco de dados.
+- [ ] **Buscar Autor por Nome:** Implementar uma busca de autor por nome, consultando o banco de dados local em vez da API.
+- [ ] **Consultas Avançadas de Autores:** Expandir as buscas de autores com novas opções, como listar autores por intervalo de ano de nascimento ou falecimento.
 
-- [ ] Modelos de dados para entidades JPA
-- [ ] Serviço de consumo com `RestTemplate` ou `WebClient`
-- [ ] Implementação de repositórios e testes de unidade
-- [ ] Opções avançadas de busca e filtros no terminal
-- [ ] Documentação da API e scripts de migração de banco
 
 ---
 

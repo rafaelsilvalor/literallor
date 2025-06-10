@@ -20,7 +20,6 @@ public class Author {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Book> books = new ArrayList<>();
 
-    // Construtores
     public Author() {}
 
     public Author(String name, Integer birthYear, Integer deathYear) {
@@ -28,9 +27,6 @@ public class Author {
         this.birthYear = birthYear;
         this.deathYear = deathYear;
     }
-
-    // Getters e Setters
-    // ... (gere os getters e setters para todos os campos)
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

@@ -1,6 +1,7 @@
 package com.example.literallor;
 
 import com.example.literallor.entity.Author;
+import com.example.literallor.entity.Book;
 import com.example.literallor.repository.AuthorRepository;
 import com.example.literallor.repository.BookRepository;
 import com.example.literallor.service.GutendexService;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 @Component
@@ -17,7 +19,6 @@ public class MainApplication implements CommandLineRunner {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
 
-    // Atualize o construtor para receber o AuthorRepository
     public MainApplication(GutendexService gutendexService, BookRepository bookRepository, AuthorRepository authorRepository) {
         this.gutendexService = gutendexService;
         this.bookRepository = bookRepository;
@@ -53,31 +54,100 @@ public class MainApplication implements CommandLineRunner {
         System.out.print("Sua opção: ");
     }
 
+
     private void handleOption(int option, Scanner scanner) {
         switch (option) {
             case 1:
-                // Lógica para buscar livro por título (a implementar)
-                System.out.println("Funcionalidade ainda não implementada.");
+                searchAndSaveBook(scanner);
                 break;
             case 2:
-                // Lógica para listar todos os livros (a implementar)
-                System.out.println("Funcionalidade ainda não implementada.");
+                listAllBooks();
                 break;
             case 3:
-                // Lógica para listar todos os autores (a implementar)
-                System.out.println("Funcionalidade ainda não implementada.");
+                listAllAuthors();
                 break;
             case 4:
                 listAuthorsAliveInYear(scanner);
                 break;
             case 5:
-                // Lógica para listar livros por idioma (a implementar)
-                System.out.println("Funcionalidade ainda não implementada.");
+                listBooksByLanguage(scanner);
                 break;
             case 0:
-                break; // O loop principal cuidará da saída
+                break;
             default:
                 System.out.println("Opção inválida.");
+        }
+    }
+
+
+    private void searchAndSaveBook(Scanner scanner) {
+        System.out.print("Digite o título do livro para buscar: ");
+        String title = scanner.nextLine();
+
+        var bookDTO = gutendexService.searchBook(title).results().stream()
+                .findFirst()
+                .orElse(null);
+
+        if (bookDTO == null) {
+            System.out.println("Livro não encontrado na API Gutendex.");
+            return;
+        }
+
+        // Verifica se o livro já existe no banco
+        Optional<Book> existingBook = bookRepository.findByTitleIgnoreCase(bookDTO.title());
+        if (existingBook.isPresent()) {
+            System.out.println("Este livro já está cadastrado no banco de dados.");
+            return;
+        }
+
+        Author author = new Author(
+                bookDTO.authors().get(0).name(),
+                bookDTO.authors().get(0).birthYear(),
+                bookDTO.authors().get(0).deathYear()
+        );
+
+        Book book = new Book(
+                bookDTO.title(),
+                bookDTO.languages().get(0),
+                bookDTO.downloadCount(),
+                author
+        );
+
+        bookRepository.save(book);
+        System.out.println("Livro '" + book.getTitle() + "' salvo com sucesso!");
+    }
+
+    private void listAllBooks() {
+        List<Book> books = bookRepository.findAll();
+        if (books.isEmpty()) {
+            System.out.println("Nenhum livro cadastrado no banco de dados.");
+        } else {
+            System.out.println("--- Todos os Livros Cadastrados ---");
+            books.forEach(book ->
+                    System.out.printf("Título: %s, Autor: %s, Idioma: %s\n",
+                            book.getTitle(),
+                            book.getAuthor().getName(),
+                            book.getLanguage())
+            );
+        }
+    }
+
+    private void listAllAuthors() {
+        List<Author> authors = authorRepository.findAll();
+        if (authors.isEmpty()) {
+            System.out.println("Nenhum autor cadastrado no banco de dados.");
+        } else {
+            System.out.println("--- Todos os Autores Cadastrados ---");
+            authors.forEach(author -> {
+                System.out.printf("Nome: %s (Nascimento: %d, Falecimento: %s)\n",
+                        author.getName(),
+                        author.getBirthYear(),
+                        author.getDeathYear() != null ? author.getDeathYear().toString() : "N/A");
+                List<String> bookTitles = author.getBooks().stream()
+                        .map(Book::getTitle)
+                        .toList();
+                System.out.println("  Livros: " + bookTitles);
+            });
         }
     }
 
@@ -100,6 +170,23 @@ public class MainApplication implements CommandLineRunner {
             }
         } catch (NumberFormatException e) {
             System.out.println("Ano inválido. Por favor, digite um número.");
+        }
+    }
+
+    private void listBooksByLanguage(Scanner scanner) {
+        System.out.println("Digite o idioma para a busca (ex: 'en' para inglês, 'pt' para português):");
+        String language = scanner.nextLine();
+        List<Book> books = bookRepository.findByLanguage(language);
+
+        if (books.isEmpty()) {
+            System.out.println("Nenhum livro encontrado para o idioma '" + language + "'.");
+        } else {
+            System.out.printf("--- Livros em '%s' ---\n", language);
+            books.forEach(book ->
+                    System.out.printf("Título: %s, Autor: %s\n",
+                            book.getTitle(),
+                            book.getAuthor().getName())
+            );
         }
     }
 }

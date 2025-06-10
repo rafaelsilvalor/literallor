@@ -19,7 +19,6 @@ public class Book {
     @JoinColumn(name = "author_id")
     private Author author;
 
-    // Construtores
     public Book() {}
 
     public Book(String title, String language, Double downloadCount, Author author) {
@@ -29,8 +28,6 @@ public class Book {
         this.author = author;
     }
 
-    // Getters e Setters
-    // ... (gere os getters e setters para todos os campos)
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

@@ -2,7 +2,7 @@
 
 # 📚 Literallor — Catálogo de Livros
 
-Uma aplicação de terminal em **Java 24** + **Spring Boot 3.x** que consome a API [Gutendex](https://gutendex.com/) para buscar metadados de livros e persistir em um banco **PostgreSQL**. Ideal para quem quer explorar consumo de APIs REST, JPA e interatividade via console.
+Uma aplicação de terminal em **Java 21** + **Spring Boot 3.x** que consome a API [Gutendex](https://gutendex.com/) para buscar metadados de livros e persistir em um banco **PostgreSQL**. Ideal para quem quer explorar consumo de APIs REST, JPA e interatividade via console.
 
 ---
 
@@ -109,16 +109,29 @@ A seguir, exemplos de opções de menu no terminal (a implementar):
 .
 ├── src/
 │   ├── main/
-│   │   ├── java/com/rafallor/literallor/
-│   │   │   ├── LiterallorApplication.java      # Ponto de entrada
-│   │   │   └── … (modelos, serviços, repositórios)
+│   │   ├── java/com/example/literallor/
+│   │   │   ├── LiterallorApplication.java      # Ponto de entrada do Spring Boot
+│   │   │   ├── MainApplication.java          # Lógica principal e menu interativo
+│   │   │   ├── entity/                       # Entidades JPA (tabelas do banco)
+│   │   │   │   ├── Author.java
+│   │   │   │   └── Book.java
+│   │   │   ├── model/                        # DTOs para desserialização da API
+│   │   │   │   ├── AuthorDTO.java
+│   │   │   │   ├── BookDTO.java
+│   │   │   │   └── GutendexResponseDTO.java
+│   │   │   ├── repository/                   # Repositórios Spring Data JPA
+│   │   │   │   ├── AuthorRepository.java
+│   │   │   │   └── BookRepository.java
+│   │   │   └── service/                      # Serviços da aplicação
+│   │   │       └── GutendexService.java
 │   │   └── resources/
-│   │       └── application.properties
+│   │       └── application.properties        # Configurações da aplicação
 │   └── test/
-│       └── java/com/rafallor/literallor/
+│       └── java/com/example/literallor/
 │           └── LiterallorApplicationTests.java
 ├── pom.xml                                     # Build & dependências
 └── README.md                                   # Este arquivo
+
 ```
 
 ---
@@ -127,15 +140,14 @@ A seguir, exemplos de opções de menu no terminal (a implementar):
 
 ```mermaid
 flowchart TD;
-  A[Usuario - Terminal] -->|Interage via CLI| B[Spring Boot Application];
-  B -->|Requisicao HTTP| C[API Gutendex];
-  C -->|Retorna JSON| B;
-  B -->|Deserializa - Jackson| D[Entidades Java];
-  D -->|CRUD via JPA| E[PostgreSQL];
-  E -->|Dados persistidos| B;
-  B -->|Exibe resultados| A;
-
-
+    A[Usuário via Terminal] -->|1: Interage via CLI| B(Spring Boot Application);
+    B -->|2: Busca livro| C[API Gutendex];
+    C -->|3: Retorna JSON| B;
+    B -->|4: Deserializa com Jackson| D[Objetos DTO];
+    D -->|5: Mapeia para Entidades| E[Entidades JPA];
+    E -->|6: Salva/Busca com JPA| F[Banco de Dados PostgreSQL];
+    F -->|7: Retorna dados persistidos| B;
+    B -->|8: Exibe resultados| A; 
 
 ```
 
